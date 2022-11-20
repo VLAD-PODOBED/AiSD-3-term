@@ -1,63 +1,138 @@
-﻿#include <iostream>
-#include <vector>
-#include <algorithm>
-using std::vector;
+﻿#include<stdio.h>
+#include<stdlib.h>
+#include <iostream>
 
-int o_w(int W, const vector<int>& w) {
-    vector<int> c(W + 1);
-    for (size_t i = 0; i < w.size(); ++i) {
-        for (int j = W; j - w[i] >= 0; --j) {
-            c[j] = std::max(c[j], c[j - w[i]] + w[i]);
-        }
-    }
-    return c[W];
+using namespace std;
+
+typedef struct items
+{
+    char name[20];
+    unsigned int weight;
+    float profit;
+};
+
+float max(float a, float b)
+{
+    return ((a > b) ? a : b);
 }
 
-int opti_w(int W, const std::vector<int>& w, int n) {
-    std::vector<std::vector<int>> value(n + 1, vector<int>(W + 1, 0));
-    for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= W; j++) {
-            std::cout << value[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
+float knapsack(unsigned int n, struct items object[], unsigned int capacity)
+{
+    float** table = new float* [n + 1];
 
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= W; j++) {
-            //value[j][i]=std::max(value[j][i-1],value[j-w[i]][i-1]+w[i]);
-            std::cout << "i:" << i << " j:" << j << "\n";
-            std::cout << "value[i][j]:" << value[i][j] << "\n";
-            std::cout << "value[i-1][j]:" << value[i - 1][j] << "\n";
-            std::cout << "w[i-1]:" << w[i - 1] << "\n";
-            std::cout << "value[i-1][j-w[i-1]]:" << value[i - 1][j - w[i - 1]] << "\n";
-            std::cout << "value[i-1][j-w[i-1]]+w[i-1]:" << value[i - 1][j - w[i - 1]] + w[i - 1] << "\n";
-            value[i][j] = std::max(value[i - 1][j], value[i - 1][j - w[i - 1]] + w[i - 1]);
+    for (unsigned int i = 0; i <= n; i++)
+    {
+        table[i] = new float[capacity + 1];
+        for (unsigned int j = 0; j <= capacity; j++)
+        {
+            if (i == 0 || j == 0)
+                table[i][j] = 0.0;
+            else if (object[i - 1].weight <= j)
+                table[i][j] = max((object[i - 1].profit + table[i - 1][j - object[i - 1].weight]), table[i - 1][j]);
+            else
+                table[i][j] = table[i - 1][j];
         }
     }
 
 
+    int i = n;
+    int j = capacity;
 
+    cout << "\n Прведметы и их цена: \n\n";
 
-
-
-    for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= W; j++) {
-            std::cout << value[i][j] << " ";
+    while (i > 0 && j > 0)
+    {
+        if (table[i][j] != table[i - 1][j])
+        {
+            cout << object[i - 1].name << " " << object[i - 1].profit << endl;
+            j -= object[i - 1].weight;
         }
-        std::cout << "\n";
+        i--;
     }
 
-    return value[n][W];
-    // return value[W][n];
+    cout << endl;
+    system("pause");
+    return table[n][capacity];
 }
 
-int main() {
-    int n, W;
-    std::cin >> W >> n;
-    vector<int> w(n);
-    for (int i = 0; i < n; i++) {
-        std::cin >> w[i];
+void main()
+{
+    setlocale(LC_ALL, "rus");
+    unsigned int capacity;
+    while (true)
+        try
+    {
+        cout << "Введите объем рюкзака:";
+        cin >> capacity;
+        if (!cin || capacity < 1) throw exception("Неправильный ввод, повторите попытку!");
+        else break;
     }
-    std::cout << opti_w(W, w, n);
-    //std::cout << o_w(W, w) << '\n';
+    catch (const exception e)
+    {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << e.what() << endl;
+    }
+
+
+
+    unsigned int n;
+    while (true)
+        try
+    {
+        cout << "Введите общее количество элементов:";
+        cin >> n;
+        if (!cin || n < 1) throw exception("Неправильный ввод, повторите попытку!");
+        else break;
+    }
+    catch (const exception e)
+    {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << e.what() << endl;
+    }
+
+
+    items* item = new items[n];
+
+    printf("Введите запрашиваемые данные:\n");
+    for (unsigned int i = 0; i < n; i++)
+    {
+        printf("==========Item No. %d ==========\n", i + 1);
+        printf("Имя : ");
+        cin >> item[i].name;
+        while (true)
+            try
+        {
+            cout << "Вес: ";
+            cin >> item[i].weight;
+            if (!cin || item[i].weight < 1) throw exception("Неправильный ввод, повторите попытку!");
+            else break;
+        }
+        catch (const exception e)
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << e.what() << endl;
+        }
+        while (true)
+            try
+        {
+            cout << "Цена: ";
+            cin >> item[i].profit;
+            if (!cin || item[i].weight < 1) throw exception("Неправильный ввод, повторите попытку!");
+            else break;
+        }
+        catch (const exception e)
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << e.what() << endl;
+        }
+
+    }
+
+    float max_profit = knapsack(n, item, capacity);
+
+    printf("Максимальная прибыль - это %.2f.", max_profit);
 }
