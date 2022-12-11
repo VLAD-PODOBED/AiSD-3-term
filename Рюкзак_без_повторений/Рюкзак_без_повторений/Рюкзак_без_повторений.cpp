@@ -25,6 +25,7 @@ float knapsack(unsigned int n, struct items object[], unsigned int capacity)
         table[i] = new float[capacity + 1];
         for (unsigned int j = 0; j <= capacity; j++)
         {
+
             if (i == 0 || j == 0)
                 table[i][j] = 0.0;
             else if (object[i - 1].weight <= j)
@@ -47,6 +48,7 @@ float knapsack(unsigned int n, struct items object[], unsigned int capacity)
             cout << object[i - 1].name << " " << object[i - 1].profit << endl;
             j -= object[i - 1].weight;
         }
+
         i--;
     }
 
